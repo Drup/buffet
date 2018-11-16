@@ -1,65 +1,34 @@
 open Buffet6
 
-module H = struct
-  module Bytes = Higher.Make (Bytes)
-  module String = Higher.Make (String)
-  module Bigstring = Higher.Make (Bigstring)
-end
+type (+'a, 'k) witness =
+  | Bytes : (_, [ rd | wr ] Bytes.t) witness
+  | String : (_, rd String.t) witness
+  | Bigstring : (_, [ rd | wr | async] Bigstring.t) witness
 
-type 'k tag =
-  | Bytes : H.Bytes.t tag
-  | String : H.String.t tag
-  | Bigstring : H.Bigstring.t tag
+let string : (rd as 'a, 'a String.t) witness = String
+let bytes : ([ rd | wr] as 'a, 'a Bytes.t) witness = Bytes
+let bigstring : ([ rd | wr | async] as 'a, 'a Bigstring.t) witness = Bigstring
 
-type bytes = H.Bytes.t
-type string = H.String.t
-type bigstring = H.Bigstring.t
+let get : type k. ([> rd], k) witness -> k -> int -> char =
+  fun w b s -> match w with
+    | String -> String.get b s
+    | Bytes -> Bytes.get b s
+    | Bigstring -> Bigstring.get b s
 
-(* / *)
+let unsafe_get : type k. ([> rd], k) witness -> k -> int -> char =
+  fun w b s -> match w with
+    | String -> String.unsafe_get b s
+    | Bytes -> Bytes.unsafe_get b s
+    | Bigstring -> Bigstring.unsafe_get b s
 
-type ('a, 'k) witness = 'k tag
-type ('a, 'k) t = ('a, 'k) Higher.app
+let set : type k. ([> wr], k) witness -> k -> int -> char -> unit =
+  fun w b s off -> match w with
+    | Bytes -> Bytes.set b s off
+    | Bigstring -> Bigstring.set b s off
+    | String -> invalid_arg "read string"
 
-let bytes : ([rd | wr], H.Bytes.t) witness = Bytes
-let string : (rd, H.String.t) witness = String
-let bigstring : ([rd | wr | async], H.Bigstring.t) witness = Bigstring
-
-type 'a value =
-  | Bytes of 'a Bytes.t
-  | String of 'a String.t
-  | Bigstring of 'a Bigstring.t
-
-module Injection = struct
-  let bytes : 'a Bytes.t -> ('a, bytes) t = H.Bytes.inj
-  let string : 'a String.t -> ('a, string) t = H.String.inj
-  let bigstring : 'a Bigstring.t -> ('a, bigstring) t = H.Bigstring.inj
-end
-
-let get : type k. ([> rd], k) witness -> ([> rd], k) t -> int -> char =
- fun witness buf off ->
-  match witness with
-  | String -> (H.String.prj buf).[off]
-  | Bytes -> Bytes.get (H.Bytes.prj buf) off
-  | Bigstring -> Bigstring.get (H.Bigstring.prj buf) off
-
-let unsafe_get : type k. ([> rd], k) witness -> ([> rd], k) t -> int -> char =
- fun witness buf off ->
-  match witness with
-  | String -> String.unsafe_get (H.String.prj buf) off
-  | Bytes -> Bytes.unsafe_get (H.Bytes.prj buf) off
-  | Bigstring -> Bigstring.unsafe_get (H.Bigstring.prj buf) off
-
-let set : type k. ([> wr], k) witness -> ([> wr], k) t -> int -> char -> unit =
- fun witness buf off chr ->
-  match witness with
-  | Bytes -> Bytes.set (H.Bytes.prj buf) off chr
-  | Bigstring -> Bigstring.set (H.Bigstring.prj buf) off chr
-  | String -> invalid_arg "No write access"
-
-let unsafe_set : type k.
-    ([> wr], k) witness -> ([> wr], k) t -> int -> char -> unit =
- fun witness buf off chr ->
-  match witness with
-  | Bytes -> Bytes.unsafe_set (H.Bytes.prj buf) off chr
-  | Bigstring -> Bigstring.unsafe_set (H.Bigstring.prj buf) off chr
-  | String -> invalid_arg "No write access"
+let unsafe_set : type k. ([> wr], k) witness -> k -> int -> char -> unit =
+  fun w b s off -> match w with
+    | Bytes -> Bytes.unsafe_set b s off
+    | Bigstring -> Bigstring.unsafe_set b s off
+    | String -> invalid_arg "read string"

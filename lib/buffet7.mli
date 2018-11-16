@@ -1,28 +1,12 @@
 open Buffet6
 
-type ('a, 'k) witness
-type ('a, 'k) t
+type (+'a, 'k) witness
 
-type 'a value =
-  | Bytes of 'a Bytes.t
-  | String of 'a String.t
-  | Bigstring of 'a Bigstring.t
+val string : (rd as 'a, 'a String.t) witness
+val bytes : ([ rd | wr] as 'a, 'a Bytes.t) witness
+val bigstring : ([ rd | wr | async] as 'a, 'a Bigstring.t) witness
 
-type bytes
-type string
-type bigstring
-
-val bytes : ([rd | wr], bytes) witness
-val string : (rd, string) witness
-val bigstring : ([rd | wr | async], bigstring) witness
-
-module Injection : sig
-  val bytes : 'a Bytes.t -> ('a, bytes) t
-  val string : 'a String.t -> ('a, string) t
-  val bigstring : 'a Bigstring.t -> ('a, bigstring) t
-end
-
-val get : ([> rd], 'k) witness -> ([> rd], 'k) t -> int -> char
-val unsafe_get : ([> rd], 'k) witness -> ([> rd], 'k) t -> int -> char
-val set : ([> wr], 'k) witness -> ([> wr], 'k) t -> int -> char -> unit
-val unsafe_set : ([> wr], 'k) witness -> ([> wr], 'k) t -> int -> char -> unit
+val get : ([> rd], 'k) witness -> 'k -> int -> char
+val unsafe_get : ([> rd], 'k) witness -> 'k -> int -> char
+val set : ([> wr], 'k) witness -> 'k -> int -> char -> unit
+val unsafe_set : ([> wr], 'k) witness -> 'k -> int -> char -> unit

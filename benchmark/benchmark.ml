@@ -130,25 +130,21 @@ let set_buffet_6_bigstring len =
 
 let set_buffet_7_bytes len =
   let buf = Buffet.Buffet6.Bytes.create len in
-  let buf = Buffet.Buffet7.Injection.bytes buf in
   let pos = Random.int len in
   Staged.stage (fun () -> Buffet.Buffet7.(set bytes buf pos '\042'))
 
 let set_buffet_7_bigstring len =
   let buf = Buffet.Buffet6.Bigstring.create len in
-  let buf = Buffet.Buffet7.Injection.bigstring buf in
   let pos = Random.int len in
   Staged.stage (fun () -> Buffet.Buffet7.(set bigstring buf pos '\042'))
 
 let unsafe_set_buffet_7_bytes len =
   let buf = Buffet.Buffet6.Bytes.create len in
-  let buf = Buffet.Buffet7.Injection.bytes buf in
   let pos = Random.int len in
   Staged.stage (fun () -> Buffet.Buffet7.(unsafe_set bytes buf pos '\042'))
 
 let unsafe_set_buffet_7_bigstring len =
   let buf = Buffet.Buffet6.Bigstring.create len in
-  let buf = Buffet.Buffet7.Injection.bigstring buf in
   let pos = Random.int len in
   Staged.stage (fun () -> Buffet.Buffet7.(unsafe_set bigstring buf pos '\042'))
 
