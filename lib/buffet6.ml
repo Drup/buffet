@@ -41,14 +41,14 @@ module type S0 = sig
   val unsafe_get_int64_be : ([> rd] t, int64) get
   val get_int64_be : ([> rd] t, int64) get
   val compare : [> rd] t compare
-  val unsafe_sub_compare : a:slice -> b:slice -> [> rd] t compare
-  val sub_compare : a:slice -> b:slice -> [> rd] t compare
+  val unsafe_sub_compare : a:slice -> b:slice -> [< rd] t compare
+  val sub_compare : a:slice -> b:slice -> [< rd] t compare
   val equal : [> rd] t equal
-  val unsafe_sub_equal : a:slice -> b:slice -> [> rd] t equal
-  val sub_equal : a:slice -> b:slice -> [> rd] t equal
+  val unsafe_sub_equal : a:slice -> b:slice -> [< rd] t equal
+  val sub_equal : a:slice -> b:slice -> [< rd] t equal
   val pp : [> rd] t fmt
-  val unsafe_sub_pp : off:int -> len:int -> [> rd] t fmt
-  val sub_pp : off:int -> len:int -> [> rd] t fmt
+  val unsafe_sub_pp : off:int -> len:int -> [< rd] t fmt
+  val sub_pp : off:int -> len:int -> [< rd] t fmt
 end
 
 module type S1 = sig
@@ -136,9 +136,9 @@ end
 module Bytes : sig
   type 'a t = private bytes
 
-  val create : int -> [rd | wr] t
-  val make : int -> char -> [rd | wr] t
-  val empty : [rd | wr] t
+  val create : int -> [< rd | wr] t
+  val make : int -> char -> [< rd | wr] t
+  val empty : [< rd | wr] t
 
   include S0 with type 'a t := 'a t
   include S1 with type 'a t := 'a t
@@ -329,8 +329,8 @@ end
 module String : sig
   type 'a t = string
 
-  val make : int -> char -> rd t
-  val empty : rd t
+  val make : int -> char -> [< rd] t
+  val empty : [< rd] t
 
   include S0 with type 'a t := 'a t
 end = struct
@@ -428,9 +428,9 @@ end
 module Bigstring : sig
   type 'a t = private Bigstringaf.t
 
-  val create : int -> [rd | wr | async] t
-  val make : int -> char -> [rd | wr | async] t
-  val empty : [rd | wr | async] t
+  val create : int -> [< rd | wr | async] t
+  val make : int -> char -> [< rd | wr | async] t
+  val empty : [< rd | wr | async] t
 
   include S0 with type 'a t := 'a t
   include S1 with type 'a t := 'a t

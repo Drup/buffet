@@ -1,6 +1,6 @@
 open Buffet6
 
-type (+'a, 'k) witness
+type (-'a, 'k) witness
 
 val string : (rd as 'a, 'a String.t) witness
 val bytes : ([ rd | wr] as 'a, 'a Bytes.t) witness
